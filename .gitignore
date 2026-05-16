@@ -1,0 +1,23 @@
+# Arquivos de build
+build/
+*.apk
+*.apk.idsig
+*.keystore
+*.class
+*.dex
+*.zip
+
+# Arquivos do Gradle (se houver)
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.DS_Store
+
+# Logs
+*.log
