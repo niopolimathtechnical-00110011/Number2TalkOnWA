@@ -40,12 +40,12 @@ Com um **balão flutuante** que aparece automaticamente ao copiar um número, ba
 5. **Toque no balão flutuante** que aparecerá na tela(esta função não está funcionando ainda, preciso melhorar)
 7. **O WhatsApp abrirá** diretamente na conversa com o número
 
-### 🛠️ Debug e Suporte
+### 🛠️ Ferramentas e Suporte
 
-O app possui uma aba de **Debug** com:
+O app possui uma aba de **Ferramentas** com:
 - ✅ Verificação de permissões
 - 📋 Teste de leitura do clipboard
-- 📤 **Envio de relatório completo** para o desenvolvedor via WhatsApp (número: 66 9 8432-8877)
+- 📤 **Envio de relatório completo ou report de erro** para o desenvolvedor via WhatsApp (número: 66 9 8432-8877)
 
 ### 📦 Download
 
@@ -118,4 +118,4 @@ MIT License
 
 ---
 
-*Made with ❤️ by Enio Alves Borges*
+*Made with 💛 by Enio Alves Borges*
