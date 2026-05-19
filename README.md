@@ -1,6 +1,6 @@
 # 📱 Number2Talk on WhatsApp
 
-![Version](https://img.shields.io/badge/version-2.0-blue)
+![Version](https://img.shields.io/badge/version-2.1-blue)
 ![Android](https://img.shields.io/badge/Android-5.0+-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 ![Size](https://img.shields.io/badge/size-~54KB-lightgrey)
