@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-2.0-blue)
 ![Android](https://img.shields.io/badge/Android-5.0+-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
-![Size](https://img.shields.io/badge/size-~58KB-lightgrey)
+![Size](https://img.shields.io/badge/size-~54KB-lightgrey)
 ![Platform](https://img.shields.io/badge/platform-Android-brightgreen)
 
 [![GitHub stars](https://img.shields.io/github/stars/niopolimathtechnical-00110011/Number2TalkOnWA)](https://github.com/niopolimathtechnical-00110011/Number2TalkOnWA/stargazers)
@@ -14,7 +14,7 @@
 
 ### Sobre o Projeto
 
-**Number2Talk on WhatsApp** é um utilitário Android ultra-leve (~58KB) que permite abrir conversas no WhatsApp diretamente de qualquer número de telefone copiado na área de transferência.
+**Number2Talk on WhatsApp** é um utilitário Android ultra-leve (~54KB) que permite abrir conversas no WhatsApp diretamente de qualquer número de telefone copiado na área de transferência.
 
 Com um **balão flutuante** que aparece automaticamente ao copiar um número, basta um toque para iniciar a conversa - sem precisar salvar o contato!
 
@@ -26,14 +26,14 @@ Com um **balão flutuante** que aparece automaticamente ao copiar um número, ba
 | 📋 **Colar Rápido** | Botão para processar números diretamente do app |
 | 🔍 **Debug Integrado** | Logs em tempo real e envio de relatório via WhatsApp |
 | ☕ **Doações** | Informações para apoiar o projeto via PIX |
-| 📱 **Leve e Rápido** | Apenas ~58KB, não consome bateria |
+| 📱 **Leve e Rápido** | Apenas ~54KB, não consome bateria |
 | 🔄 **3 Abas** | Conversa, Sobre/Doações e Debug |
 | 📊 **Relatório Automático** | Envia logs detalhados para o desenvolvedor |
 
 ### 📋 Como Usar
 
 1. **Baixe o APK** na seção [Releases](https://github.com/niopolimathtechnical-00110011/Number2TalkOnWA/releases)
-**[![Download APK](https://img.shields.io/badge/Download-Number2Talk_v2.0_Final.apk-brightgreen?style=for-the-badge&logo=android)](https://github.com/niopolimathtechnical-00110011/Number2TalkOnWA/releases/download/v2.0/Number2Talk_v2.0_Final.apk)**
+**[![Download APK](https://img.shields.io/badge/Download-Number2Talk_v2.0_Final.apk-brightgreen?style=for-the-badge&logo=android)](https://github.com/niopolimathtechnical-00110011/Number2TalkOnWA/releases/download/v2.1/Number2Talk_v2.1.apk)**
 2. **Instale** no seu dispositivo Android (5.0+)
 3. **Abra o app** e conceda a permissão de "Sobrepor outros apps"
 4. **Copie qualquer número** de telefone (ex: `+55 66 9 8432 8877`)
@@ -81,7 +81,7 @@ MIT License - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ### About
 
-**Number2Talk on WhatsApp** is an ultra-lightweight (~50KB) Android utility that opens WhatsApp conversations directly from any phone number copied to the clipboard.
+**Number2Talk on WhatsApp** is an ultra-lightweight (~54KB) Android utility that opens WhatsApp conversations directly from any phone number copied to the clipboard.
 
 ### Features
 
@@ -89,7 +89,7 @@ MIT License - veja o arquivo [LICENSE](LICENSE) para detalhes.
 - 📋 **Quick Paste** - Button to process numbers directly from the app
 - 🔍 **Integrated Debug** - Real-time logs and report sending via WhatsApp
 - ☕ **Donations** - Support the project via PIX
-- 📱 **Lightweight & Fast** - Only ~58KB, no battery drain
+- 📱 **Lightweight & Fast** - Only ~54KB, no battery drain
 
 ### How to Use
 
