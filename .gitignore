@@ -7,17 +7,17 @@ build/
 *.dex
 *.zip
 
-# Arquivos do Gradle (se houver)
-.gradle/
-gradle/
-gradlew
-gradlew.bat
+# Backup
+backup_*/
+
+# Arquivos temporários
+*.tmp
+*.log
 
 # IDE
 .vscode/
 .idea/
 *.iml
-.DS_Store
 
-# Logs
-*.log
+# Ambiente local
+local.properties

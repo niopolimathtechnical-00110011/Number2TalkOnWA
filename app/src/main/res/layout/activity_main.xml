@@ -17,7 +17,7 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="📱 Conversa"
+            android:text="📱 Conversa Rápida"
             android:textSize="12sp"
             android:background="@drawable/tab_selector"
             android:textColor="#FFFFFF" />
@@ -27,7 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="ℹ️ Sobre"
+            android:text="ℹ️ Sobre o App"
             android:textSize="12sp"
             android:background="@drawable/tab_selector"
             android:textColor="#FFFFFF" />
@@ -37,14 +37,14 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="⚙️ Debug"
+            android:text="🛠️ Ferramentas"
             android:textSize="12sp"
             android:background="@drawable/tab_selector"
             android:textColor="#FFFFFF" />
 
     </LinearLayout>
 
-    <!-- Conteúdo da Aba 1: Conversa -->
+    <!-- Aba 1: Conversa Rápida -->
     <ScrollView
         android:id="@+id/aba1_content"
         android:layout_width="match_parent"
@@ -77,37 +77,91 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Copie um número de telefone e clique no balão flutuante para abrir diretamente no WhatsApp"
+                android:text="Digite o número ou cole do clipboard:"
                 android:textSize="14sp"
                 android:textColor="#666666"
                 android:layout_marginBottom="16dp" />
+
+            <!-- Campo de telefone -->
+            <EditText
+                android:id="@+id/edt_telefone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ex: 66984328877 ou 5566984328877"
+                android:inputType="number"
+                android:maxLength="13"
+                android:padding="12dp"
+                android:background="@android:drawable/editbox_background"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/edt_nome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nome do contato (opcional)"
+                android:inputType="textCapWords"
+                android:padding="12dp"
+                android:background="@android:drawable/editbox_background"
+                android:layout_marginBottom="16dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/btn_conversar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="💬 Conversar"
+                    android:textSize="14sp"
+                    android:backgroundTint="#075E54"
+                    android:textColor="#FFFFFF"
+                    android:padding="12dp"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/btn_limpar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🗑️ Limpar"
+                    android:textSize="14sp"
+                    android:backgroundTint="#F44336"
+                    android:textColor="#FFFFFF"
+                    android:padding="12dp"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btn_colar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="📋 Colar número da área de transferência"
-                android:textSize="16sp"
-                android:backgroundTint="#075E54"
+                android:textSize="14sp"
+                android:backgroundTint="#2196F3"
                 android:textColor="#FFFFFF"
-                android:padding="14dp" />
+                android:padding="14dp"
+                android:layout_marginBottom="24dp" />
 
             <TextView
                 android:id="@+id/txt_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="✅ Status: Serviço em execução"
+                android:text="✅ Serviço ativo"
                 android:textSize="12sp"
                 android:textColor="#4CAF50"
                 android:gravity="center"
                 android:padding="12dp"
-                android:layout_marginTop="16dp"
                 android:background="#E8F5E9" />
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- Conteúdo da Aba 2: Sobre e Doações -->
+    <!-- Aba 2: Sobre o App -->
     <ScrollView
         android:id="@+id/aba2_content"
         android:layout_width="match_parent"
@@ -150,7 +204,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="https://github.com/niopolimathtechnical-00110011"
+                android:text="github.com/niopolimathtechnical-00110011"
                 android:textSize="14sp"
                 android:textColor="#1976D2"
                 android:autoLink="web"
@@ -174,7 +228,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Este app é útil para mim como está e fiz apenas como entusiasta, sem compromisso de upgrade ou correção de erros.. mas caso esteja funcional e seja útil para mais alguém, deixo ele para uso gratuito, embora, caso queira contribuir para esse e outros projetos, fico a disposição da aba Doações.."
+                android:text="Este app é útil para mim como está e fiz apenas como entusiasta, sem compromisso de upgrade ou correção de erros.. mas caso esteja funcional e seja útil para mais alguém, deixo ele para uso gratuito, embora, caso queira contribuir para esse e outros projetos, desde já Agradecido por qualquer Doação...☕🤲🙏🏿🙏🙏🏻🙌"
                 android:textSize="14sp"
                 android:textColor="#666666"
                 android:layout_marginBottom="16dp" />
@@ -220,81 +274,108 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Conteúdo da Aba 3: Debug -->
-    <LinearLayout
+    <!-- Aba 3: Ferramentas -->
+    <ScrollView
         android:id="@+id/aba3_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:padding="16dp">
+        android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⚙️ Debug - Relatório do Sistema"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#075E54"
-            android:layout_marginBottom="12dp" />
-
-        <Button
-            android:id="@+id/btn_verificar_permissao"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🔍 Verificar Permissão de Sobreposição"
-            android:textSize="14sp"
-            android:backgroundTint="#9C27B0"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/btn_testar_clipboard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="📋 Testar Leitura do Clipboard"
-            android:textSize="14sp"
-            android:backgroundTint="#2196F3"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/btn_enviar_log"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="📤 Enviar Log Completo para WhatsApp"
-            android:textSize="14sp"
-            android:backgroundTint="#4CAF50"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📝 Logs do Sistema:"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginBottom="8dp" />
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="#F0F0F0"
-            android:padding="8dp">
+            android:orientation="vertical"
+            android:padding="24dp">
 
             <TextView
-                android:id="@+id/txt_logs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📋 Histórico de Conversas"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#075E54"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/btn_historico"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Aguardando eventos..."
-                android:textSize="11sp"
-                android:textColor="#333333"
-                android:fontFamily="monospace" />
+                android:text="📜 Ver Histórico de Conversas"
+                android:textSize="14sp"
+                android:backgroundTint="#4CAF50"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginBottom="24dp" />
 
-        </ScrollView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔧 Permissões"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#075E54"
+                android:layout_marginBottom="12dp" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/btn_verificar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔍 Verificar Permissão de Sobreposição"
+                android:textSize="14sp"
+                android:backgroundTint="#9C27B0"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/btn_testar_clipboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📋 Testar Leitura do Clipboard"
+                android:textSize="14sp"
+                android:backgroundTint="#2196F3"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginBottom="24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📝 Logs do Sistema"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#075E54"
+                android:layout_marginBottom="12dp" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="#F0F0F0">
+
+                <TextView
+                    android:id="@+id/txt_debug_log"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Logs aparecerão aqui..."
+                    android:textSize="10sp"
+                    android:textColor="#666666"
+                    android:fontFamily="monospace"
+                    android:padding="8dp" />
+
+            </ScrollView>
+
+            <Button
+                android:id="@+id/btn_reportar_erro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🐞 Reportar Erro via WhatsApp"
+                android:textSize="14sp"
+                android:backgroundTint="#F44336"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginTop="16dp" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

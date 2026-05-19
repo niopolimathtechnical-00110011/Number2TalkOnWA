@@ -8,23 +8,24 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PixelFormat;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class ClipboardMonitorService extends Service {
-
+    private static final String TAG = "Number2Talk";
     private WindowManager windowManager;
     private ImageView floatingButton;
     private ClipboardManager clipboardManager;
-    private ClipboardManager.OnPrimaryClipChangedListener clipListener;
     private String ultimoNumeroDetectado = "";
+    private static final String WHATSAPP_PACKAGE = "com.whatsapp";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,17 +35,18 @@ public class ClipboardMonitorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "🚀 Service iniciado");
         
-        // Criar canal de notificação obrigatório para serviços em primeiro plano (Android 8+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("n2t_service", 
-                    "Monitor de Clipboard", NotificationManager.IMPORTANCE_MIN);
+                    "Number2Talk", NotificationManager.IMPORTANCE_LOW);
             NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (manager != null) manager.createNotificationChannel(channel);
             
             Notification notification = new Notification.Builder(this, "n2t_service")
-                    .setContentTitle("Number2Talk ativo")
-                    .setSmallIcon(R.drawable.folder_apps)
+                    .setContentTitle("Number2Talk")
+                    .setContentText("Monitorando clipboard...")
+                    .setSmallIcon(android.R.drawable.ic_menu_edit)
                     .build();
             startForeground(1, notification);
         }
@@ -52,38 +54,40 @@ public class ClipboardMonitorService extends Service {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
-        // Ouvinte que monitora quando algo é copiado no celular
-        clipListener = new ClipboardManager.OnPrimaryClipChangedListener() {
-            @Override
-            public void onPrimaryClipChanged() {
-                if (clipboardManager.hasPrimaryClip()) {
-                    ClipData clipData = clipboardManager.getPrimaryClip();
-                    if (clipData != null && clipData.getItemCount() > 0) {
-                        CharSequence text = clipData.getItemAt(0).getText();
-                        if (text != null) {
-                            verificarEExibirBalao(text.toString());
-                        }
+        ClipboardManager.OnPrimaryClipChangedListener clipListener = () -> {
+            Log.d(TAG, "📋 Clipboard alterado!");
+            if (clipboardManager.hasPrimaryClip()) {
+                ClipData clipData = clipboardManager.getPrimaryClip();
+                if (clipData != null && clipData.getItemCount() > 0) {
+                    CharSequence text = clipData.getItemAt(0).getText();
+                    if (text != null) {
+                        verificarEExibirBalao(text.toString());
                     }
                 }
             }
         };
         clipboardManager.addPrimaryClipChangedListener(clipListener);
+        Log.d(TAG, "✅ Listener registrado");
     }
 
     private void verificarEExibirBalao(String textoCopiado) {
-        // Limpa caracteres especiais do telefone
-        final String apenasNumeros = textoCopiado.replaceAll("[^0-9]", "");
-
-        // Valida se o conteúdo copiado tem estrutura de número de telefone válido
+        String apenasNumeros = textoCopiado.replaceAll("[^0-9]", "");
+        
         if (apenasNumeros.length() >= 10 && !apenasNumeros.equals(ultimoNumeroDetectado)) {
             ultimoNumeroDetectado = apenasNumeros;
+            Log.d(TAG, "✅ Número detectado: " + apenasNumeros);
             
-            // Evita duplicar o botão se ele já estiver visível na tela
-            if (floatingButton != null) removerBalao();
+            if (floatingButton != null) {
+                try {
+                    windowManager.removeView(floatingButton);
+                } catch (Exception e) {}
+                floatingButton = null;
+            }
 
-            // Configura o formato do balão flutuante usando o ícone do projeto
             floatingButton = new ImageView(this);
-            floatingButton.setImageResource(R.drawable.folder_apps);
+            floatingButton.setImageResource(android.R.drawable.ic_menu_edit);
+            floatingButton.setBackgroundColor(0x80075E54);
+            floatingButton.setPadding(15, 15, 15, 15);
 
             int LAYOUT_FLAG;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -93,74 +97,65 @@ public class ClipboardMonitorService extends Service {
             }
 
             final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                    140, 140, // Largura e Altura do balão em pixels
-                    LAYOUT_FLAG,
+                    100, 100, LAYOUT_FLAG,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                    PixelFormat.TRANSLUCENT
+                    android.graphics.PixelFormat.TRANSLUCENT
             );
 
-            params.gravity = Gravity.TOP | Gravity.END; // Aparece no canto superior direito
+            params.gravity = Gravity.TOP | Gravity.END;
             params.x = 20;
             params.y = 300;
 
-            // Permite ao usuário arrastar o botão pela tela ou apenas clicar
-            floatingButton.setOnTouchListener(new View.OnTouchListener() {
-                private int initialX, initialY;
-                private float initialTouchX, initialTouchY;
-                private boolean isClick = true;
-
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            initialX = params.x;
-                            initialY = params.y;
-                            initialTouchX = event.getRawX();
-                            initialTouchY = event.getRawY();
-                            isClick = true;
-                            return true;
-                        case MotionEvent.ACTION_UP:
-                            if (isClick) {
-                                // AÇÃO DO CLIQUE: Redireciona direto para o WhatsApp
-                                String linkWa = "https://wa.me" + (apenasNumeros.length() <= 11 ? "55" + apenasNumeros : apenasNumeros);
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(linkWa));
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                                removerBalao(); // Some após abrir a mensagem
-                            }
-                            return true;
-                        case MotionEvent.ACTION_MOVE:
-                            params.x = initialX - (int) (event.getRawX() - initialTouchX);
-                            params.y = initialY + (int) (event.getRawY() - initialTouchY);
-                            windowManager.updateViewLayout(floatingButton, params);
-                            if (Math.abs(event.getRawX() - initialTouchX) > 10 || Math.abs(event.getRawY() - initialTouchY) > 10) {
-                                isClick = false; // Se arrastou, não dispara o clique
-                            }
-                            return true;
-                    }
-                    return false;
-                }
+            floatingButton.setOnClickListener(v -> {
+                Log.d(TAG, "🖱️ Balão clicado!");
+                abrirWhatsApp(apenasNumeros);
+                try {
+                    windowManager.removeView(floatingButton);
+                    floatingButton = null;
+                } catch (Exception e) {}
             });
 
-            windowManager.addView(floatingButton, params);
+            try {
+                windowManager.addView(floatingButton, params);
+                Log.d(TAG, "✅ Balão exibido!");
+            } catch (Exception e) {
+                Log.e(TAG, "Erro ao exibir balão: " + e.getMessage());
+            }
         }
     }
-
-    private void removerBalao() {
-        if (floatingButton != null && windowManager != null) {
-            try {
-                windowManager.removeView(floatingButton);
-            } catch (Exception ignored) {}
-            floatingButton = null;
+    
+    private void abrirWhatsApp(String numero) {
+        try {
+            String numeroFormatado = numero;
+            if (numeroFormatado.length() <= 11 && !numeroFormatado.startsWith("55")) {
+                numeroFormatado = "55" + numeroFormatado;
+            }
+            
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://wa.me/" + numeroFormatado));
+            intent.setPackage(WHATSAPP_PACKAGE);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            
+            PackageManager pm = getPackageManager();
+            if (intent.resolveActivity(pm) != null) {
+                startActivity(intent);
+                Log.d(TAG, "✅ WhatsApp aberto: " + numeroFormatado);
+            } else {
+                Log.d(TAG, "⚠️ WhatsApp não encontrado");
+                Toast.makeText(this, "WhatsApp não encontrado!", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Erro: " + e.getMessage());
         }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        removerBalao();
-        if (clipboardManager != null && clipListener != null) {
-            clipboardManager.removePrimaryClipChangedListener(clipListener);
+        if (floatingButton != null && windowManager != null) {
+            try {
+                windowManager.removeView(floatingButton);
+            } catch (Exception e) {}
         }
     }
 }

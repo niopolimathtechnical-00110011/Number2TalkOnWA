@@ -1,6 +1,7 @@
 package com.niotech.number2talk_on_wa;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -9,10 +10,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.text.SimpleDateFormat;
@@ -22,9 +23,9 @@ import java.util.Locale;
 public class MainActivity extends Activity {
     private TextView txtStatus, txtLogs;
     private StringBuilder logBuilder = new StringBuilder();
+    private EditText edtTelefone, edtNome;
     private View aba1, aba2, aba3;
     private Button btnAba1, btnAba2, btnAba3;
-    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         txtStatus = findViewById(R.id.txt_status);
-        txtLogs = findViewById(R.id.txt_logs);
+        txtLogs = findViewById(R.id.txt_debug_log);
+        edtTelefone = findViewById(R.id.edt_telefone);
+        edtNome = findViewById(R.id.edt_nome);
         
         // Abas
         aba1 = findViewById(R.id.aba1_content);
@@ -43,35 +46,39 @@ public class MainActivity extends Activity {
         btnAba2 = findViewById(R.id.btn_aba2);
         btnAba3 = findViewById(R.id.btn_aba3);
         
-        // Configurar abas
         btnAba1.setOnClickListener(v -> mostrarAba(1));
         btnAba2.setOnClickListener(v -> mostrarAba(2));
         btnAba3.setOnClickListener(v -> mostrarAba(3));
         
-        // Botões da Aba 1
+        // Botões da Aba 1 - Conversa Rápida
+        Button btnConversar = findViewById(R.id.btn_conversar);
+        Button btnLimpar = findViewById(R.id.btn_limpar);
         Button btnColar = findViewById(R.id.btn_colar);
+        
+        btnConversar.setOnClickListener(v -> conversarComNumero());
+        btnLimpar.setOnClickListener(v -> limparCampos());
         btnColar.setOnClickListener(v -> processarClipboard());
         
-        // Botões da Aba 2
+        // Botão da Aba 2 - Doação
         Button btnDoacao = findViewById(R.id.btn_doacao);
-        btnDoacao.setOnClickListener(v -> abrirDoacao());
+        btnDoacao.setOnClickListener(v -> copiarChavePix());
         
-        // Botões da Aba 3
-        Button btnVerificar = findViewById(R.id.btn_verificar_permissao);
+        // Botões da Aba 3 - Ferramentas
+        Button btnHistorico = findViewById(R.id.btn_historico);
+        Button btnVerificar = findViewById(R.id.btn_verificar);
         Button btnTestarClipboard = findViewById(R.id.btn_testar_clipboard);
-        Button btnEnviarLog = findViewById(R.id.btn_enviar_log);
+        Button btnReportarErro = findViewById(R.id.btn_reportar_erro);
         
+        btnHistorico.setOnClickListener(v -> mostrarHistorico());
         btnVerificar.setOnClickListener(v -> verificarPermissao());
         btnTestarClipboard.setOnClickListener(v -> testarClipboard());
-        btnEnviarLog.setOnClickListener(v -> enviarLogWhatsApp());
+        btnReportarErro.setOnClickListener(v -> mostrarDialogoReportarErro());
         
-        addLog("🚀 App iniciado - Versão 2.0");
-        addLog("📱 Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")");
+        addLog("🚀 Number2Talk v2.1 iniciado");
+        addLog("📱 Android " + Build.VERSION.RELEASE);
         
-        // Verifica permissão e inicia serviço
+        verificarWhatsAppInstalado();
         verificarEIniciarServico();
-        
-        // Mostra aba 1 por padrão
         mostrarAba(1);
     }
     
@@ -85,81 +92,298 @@ public class MainActivity extends Activity {
         else if (aba == 3) aba3.setVisibility(View.VISIBLE);
     }
     
+    private void limparCampos() {
+        edtTelefone.setText("");
+        edtNome.setText("");
+        addLog("🗑️ Campos limpos");
+        Toast.makeText(this, "Campos limpos!", Toast.LENGTH_SHORT).show();
+    }
+    
+    private String validarNumero(String numero) {
+        String apenasNumeros = numero.replaceAll("[^0-9]", "");
+        
+        if (apenasNumeros.length() == 10) {
+            return apenasNumeros;
+        } else if (apenasNumeros.length() == 11) {
+            return apenasNumeros;
+        } else if (apenasNumeros.length() == 12) {
+            return apenasNumeros;
+        } else if (apenasNumeros.length() == 13 && apenasNumeros.startsWith("55")) {
+            return apenasNumeros;
+        } else if (apenasNumeros.length() == 8) {
+            return "669" + apenasNumeros;
+        } else if (apenasNumeros.length() == 9 && !apenasNumeros.startsWith("9")) {
+            return "66" + apenasNumeros;
+        } else if (apenasNumeros.length() == 9 && apenasNumeros.startsWith("9")) {
+            return "66" + apenasNumeros;
+        }
+        
+        return null;
+    }
+    
+    private void conversarComNumero() {
+        String numero = edtTelefone.getText().toString();
+        String nome = edtNome.getText().toString();
+        
+        if (numero == null || numero.trim().isEmpty()) {
+            Toast.makeText(this, "⚠️ Digite um número de telefone!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String numeroValidado = validarNumero(numero);
+        
+        if (numeroValidado == null) {
+            Toast.makeText(this, "⚠️ Número inválido!\nUse 10, 11 ou 13 dígitos (ex: 66984328877)", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        String nomeFinal = (nome == null || nome.trim().isEmpty()) ? "nome não informado" : nome;
+        TelefoneHelper.salvarHistorico(this, numeroValidado, nomeFinal);
+        
+        addLog("📞 Conversar com: " + numeroValidado + " (" + nomeFinal + ")");
+        
+        abrirWhatsApp(numeroValidado);
+    }
+    
     private void processarClipboard() {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         
         if (clipboard != null && clipboard.hasPrimaryClip()) {
             ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
             if (item != null && item.getText() != null) {
-                String textoCopiado = item.getText().toString();
-                addLog("📋 Colar executado - Texto: " + textoCopiado);
+                String texto = item.getText().toString();
+                addLog("📋 Copiado: " + texto);
                 
-                String apenasNumeros = textoCopiado.replaceAll("[^0-9]", "");
+                String apenasNumeros = texto.replaceAll("[^0-9]", "");
                 
-                if (apenasNumeros.length() >= 10) {
-                    if (apenasNumeros.length() == 10 || apenasNumeros.length() == 11) {
-                        apenasNumeros = "55" + apenasNumeros;
+                if (apenasNumeros.length() >= 8) {
+                    String numeroValidado = validarNumero(apenasNumeros);
+                    if (numeroValidado != null) {
+                        edtTelefone.setText(numeroValidado);
+                        addLog("📞 Número colado: " + numeroValidado);
+                        Toast.makeText(this, "Número colado: " + numeroValidado, Toast.LENGTH_SHORT).show();
+                    } else {
+                        addLog("❌ Número inválido");
+                        Toast.makeText(this, "Número inválido! Use 10, 11 ou 13 dígitos.", Toast.LENGTH_LONG).show();
                     }
-                    addLog("✅ Número processado: " + apenasNumeros);
-                    abrirWhatsAppDireto(apenasNumeros);
                 } else {
-                    addLog("❌ Número inválido: " + apenasNumeros);
-                    Toast.makeText(this, "❌ Número inválido!", Toast.LENGTH_LONG).show();
+                    addLog("❌ Número muito curto");
+                    Toast.makeText(this, "Número muito curto!", Toast.LENGTH_SHORT).show();
                 }
             }
         } else {
-            addLog("⚠️ Clipboard vazio");
-            Toast.makeText(this, "📋 Área de transferência vazia!", Toast.LENGTH_SHORT).show();
+            addLog("📋 Clipboard vazio");
         }
     }
     
-    private void abrirWhatsAppDireto(String numero) {
+    private void mostrarHistorico() {
+        String historico = TelefoneHelper.lerHistorico(this);
+        
+        if (historico.equals("Nenhum histórico encontrado.")) {
+            Toast.makeText(this, "Nenhum histórico encontrado.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("📜 Histórico de Conversas");
+        
+        TextView textView = new TextView(this);
+        textView.setText(historico);
+        textView.setPadding(40, 20, 40, 20);
+        textView.setTextSize(12);
+        textView.setClickable(true);
+        textView.setMovementMethod(new android.text.method.ScrollingMovementMethod());
+        
+        final String[] linhas = historico.split("\n");
+        
+        builder.setView(textView);
+        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+        builder.setNeutralButton("Limpar Histórico", (dialog, which) -> {
+            limparHistorico();
+        });
+        
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        
+        textView.setOnTouchListener((v, event) -> {
+            android.text.Layout layout = ((TextView) v).getLayout();
+            if (layout != null) {
+                int line = layout.getLineForVertical((int) event.getY());
+                if (line >= 0 && line < linhas.length) {
+                    String linhaSelecionada = linhas[line];
+                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("Histórico", linhaSelecionada);
+                    clipboard.setPrimaryClip(clip);
+                    addLog("📋 Copiado: " + linhaSelecionada);
+                    Toast.makeText(this, "✅ Copiado: " + linhaSelecionada, Toast.LENGTH_LONG).show();
+                    return true;
+                }
+            }
+            return false;
+        });
+        
+        addLog("📜 Histórico visualizado");
+    }
+    
+    private void limparHistorico() {
+        try {
+            java.io.File dir = new java.io.File(getExternalMediaDirs()[0], "Number2Talk");
+            java.io.File historicoFile = new java.io.File(dir, "historico.txt");
+            if (historicoFile.exists()) {
+                historicoFile.delete();
+                addLog("🗑️ Histórico limpo");
+                Toast.makeText(this, "Histórico limpo com sucesso!", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            addLog("❌ Erro ao limpar histórico: " + e.getMessage());
+        }
+    }
+    
+    private void mostrarDialogoReportarErro() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("🐞 Reportar Erro");
+        
+        final EditText inputDescricao = new EditText(this);
+        inputDescricao.setHint("Descreva o erro que ocorreu...");
+        inputDescricao.setPadding(40, 20, 40, 20);
+        inputDescricao.setMinHeight(150);
+        
+        builder.setView(inputDescricao);
+        builder.setPositiveButton("Enviar", (dialog, which) -> {
+            String descricao = inputDescricao.getText().toString();
+            enviarRelatorioErro(descricao);
+        });
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+        
+        addLog("🐞 Diálogo de reporte de erro aberto");
+    }
+    
+    private void enviarRelatorioErro(String descricao) {
+        addLog("📤 Enviando relatório de erro...");
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+        String dataHora = sdf.format(new Date());
+        
+        StringBuilder relatorio = new StringBuilder();
+        relatorio.append("🐞 *RELATÓRIO DE ERRO - Number2Talk* 🐞\n\n");
+        relatorio.append("📅 *Data/Hora:* ").append(dataHora).append("\n");
+        relatorio.append("📱 *Modelo:* ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL).append("\n");
+        relatorio.append("🤖 *Android:* ").append(Build.VERSION.RELEASE).append("\n\n");
+        
+        relatorio.append("📝 *DESCRIÇÃO DO ERRO:*\n");
+        relatorio.append(descricao.isEmpty() ? "Nenhuma descrição fornecida" : descricao).append("\n\n");
+        
+        relatorio.append("📋 *LOGS DO SISTEMA:*\n");
+        relatorio.append(logBuilder.toString());
+        relatorio.append("\n\n---\n");
+        relatorio.append("📱 App: Number2Talk v2.1\n");
+        relatorio.append("👨‍💻 Enviado automaticamente pelo app");
+        
+        String numeroDev = "5566984328877";
+        String texto = relatorio.toString().replace(" ", "%20").replace("\n", "%0A").replace("&", "%26");
+        
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("https://wa.me/" + numero));
+            intent.setData(Uri.parse("https://wa.me/" + numeroDev + "?text=" + texto));
             intent.setPackage("com.whatsapp");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             
             PackageManager pm = getPackageManager();
             if (intent.resolveActivity(pm) != null) {
                 startActivity(intent);
-                addLog("📱 Abrindo WhatsApp para: " + numero);
+                addLog("✅ Relatório de erro enviado para " + numeroDev);
+                Toast.makeText(this, "✅ Relatório enviado! Aguarde o suporte.", Toast.LENGTH_LONG).show();
             } else {
-                intent.setPackage(null);
-                startActivity(intent);
-                addLog("⚠️ WhatsApp não instalado, abrindo navegador");
-                Toast.makeText(this, "⚠️ WhatsApp não encontrado", Toast.LENGTH_SHORT).show();
+                addLog("❌ WhatsApp não encontrado");
+                Toast.makeText(this, "WhatsApp não encontrado!\nInstale o WhatsApp para enviar o relatório.", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            addLog("❌ Erro ao abrir WhatsApp: " + e.getMessage());
-            Toast.makeText(this, "Erro: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            addLog("❌ Erro no envio: " + e.getMessage());
+            Toast.makeText(this, "Erro ao enviar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
     
-    private void abrirDoacao() {
-        addLog("☕ Abrindo informações de doação");
+    private void copiarChavePix() {
+        String chavePix = "soletrepix@gmail.com";
         
-        // Mostra informações via Toast
-        String msg = "Chave PIX: soletrepix@gmail.com\nTitular: Enio Alves Borges\nBanco do Brasil";
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Chave PIX", chavePix);
+        clipboard.setPrimaryClip(clip);
         
-        // Opcional: abrir navegador com tutorial PIX
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https://www.google.com/search?q=como+pagar+por+pix+soletrepix%40gmail.com"));
-        startActivity(intent);
+        addLog("☕ Chave PIX copiada: " + chavePix);
+        
+        Toast.makeText(this, "✅ Chave PIX copiada!\n" + chavePix + "\n\nAbra seu app bancário e cole no PIX.", Toast.LENGTH_LONG).show();
+    }
+    
+    private boolean isWhatsAppInstalled() {
+        PackageManager pm = getPackageManager();
+        try {
+            pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
+            addLog("✅ WhatsApp detectado");
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            addLog("⚠️ WhatsApp não detectado");
+            return false;
+        }
+    }
+    
+    private void verificarWhatsAppInstalado() {
+        if (isWhatsAppInstalled()) {
+            txtStatus.setText("✅ WhatsApp OK | Serviço ativo");
+        } else {
+            txtStatus.setText("⚠️ WhatsApp não instalado!");
+        }
+    }
+    
+    private void abrirWhatsApp(String numero) {
+        String numeroFormatado = numero.replaceAll("[^0-9]", "");
+        if (!numeroFormatado.startsWith("55") && numeroFormatado.length() <= 11) {
+            numeroFormatado = "55" + numeroFormatado;
+        }
+        
+        addLog("📞 Abrindo WhatsApp: " + numeroFormatado);
+        
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://wa.me/" + numeroFormatado));
+            intent.setPackage("com.whatsapp");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            
+            PackageManager pm = getPackageManager();
+            if (intent.resolveActivity(pm) != null) {
+                startActivity(intent);
+                addLog("✅ WhatsApp aberto com sucesso!");
+            } else {
+                addLog("❌ WhatsApp não encontrado");
+                Toast.makeText(this, "WhatsApp não encontrado!", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            addLog("❌ Erro: " + e.getMessage());
+        }
+    }
+    
+    private void testarClipboard() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null && clipboard.hasPrimaryClip()) {
+            ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+            if (item != null && item.getText() != null) {
+                String text = item.getText().toString();
+                addLog("📋 Clipboard: " + text);
+                Toast.makeText(this, "Clipboard: " + text, Toast.LENGTH_LONG).show();
+            } else {
+                addLog("⚠️ Clipboard vazio");
+            }
+        }
     }
     
     private void verificarPermissao() {
-        addLog("🔍 Verificando permissão de sobreposição...");
-        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.canDrawOverlays(this)) {
-                addLog("✅ Permissão de sobreposição já concedida");
-                txtStatus.setText("✅ Status: Serviço ativo com permissão");
-                txtStatus.setTextColor(0xFF4CAF50);
-                Toast.makeText(this, "✅ Permissão OK! Balão funcionará.", Toast.LENGTH_SHORT).show();
+                addLog("✅ Permissão de sobreposição OK");
+                Toast.makeText(this, "Permissão OK! Balão funcionará.", Toast.LENGTH_SHORT).show();
             } else {
-                addLog("⚠️ Sem permissão. Abrindo configurações...");
-                Toast.makeText(this, "⚠️ Ative a permissão 'Sobrepor outros apps'", Toast.LENGTH_LONG).show();
+                addLog("⚠️ Abrindo configurações de permissão");
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:" + getPackageName()));
                 startActivity(intent);
@@ -167,88 +391,13 @@ public class MainActivity extends Activity {
         }
     }
     
-    private void testarClipboard() {
-        addLog("📋 Testando leitura do clipboard...");
-        
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard != null && clipboard.hasPrimaryClip()) {
-            ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
-            if (item != null && item.getText() != null) {
-                String text = item.getText().toString();
-                addLog("✅ Clipboard contém: " + text);
-                Toast.makeText(this, "Clipboard: " + text, Toast.LENGTH_LONG).show();
-            } else {
-                addLog("⚠️ Clipboard está vazio");
-                Toast.makeText(this, "⚠️ Clipboard vazio", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            addLog("❌ Não foi possível acessar o clipboard");
-            Toast.makeText(this, "❌ Erro ao acessar clipboard", Toast.LENGTH_SHORT).show();
-        }
-    }
-    
-    private void enviarLogWhatsApp() {
-        addLog("📤 Preparando envio de relatório para WhatsApp...");
-        
-        // Monta relatório completo
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
-        String dataHora = sdf.format(new Date());
-        
-        StringBuilder relatorio = new StringBuilder();
-        relatorio.append("📊 *RELATÓRIO DEBUG - Number2Talk* 📊\n\n");
-        relatorio.append("📅 *Data/Hora:* ").append(dataHora).append("\n");
-        relatorio.append("📱 *Dispositivo:* ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL).append("\n");
-        relatorio.append("🤖 *Android:* ").append(Build.VERSION.RELEASE).append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
-        relatorio.append("🔧 *App Versão:* 2.0\n\n");
-        
-        relatorio.append("📋 *Permissão de Sobreposição:* ");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            relatorio.append(Settings.canDrawOverlays(this) ? "✅ CONCEDIDA" : "❌ NEGADA");
-        } else {
-            relatorio.append("✅ AUTOMÁTICA (Android < 6.0)");
-        }
-        relatorio.append("\n\n");
-        
-        relatorio.append("📝 *LOGS DO SISTEMA:*\n");
-        relatorio.append("─────────────────────────────\n");
-        relatorio.append(logBuilder.toString());
-        relatorio.append("\n─────────────────────────────\n\n");
-        relatorio.append("👨‍💻 *Desenvolvedor:* Enio Alves Borges\n");
-        relatorio.append("🐙 *GitHub:* github.com/niopolimathtechnical-00110011\n");
-        relatorio.append("☕ *Chave PIX:* soletrepix@gmail.com\n\n");
-        relatorio.append("🐠🐟 *Sua contribuição ajuda a manter o projeto!*\n");
-        
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            String mensagem = relatorio.toString().replace(" ", "%20").replace("\n", "%0A");
-            intent.setData(Uri.parse("https://wa.me/5566984328877?text=" + mensagem));
-            intent.setPackage("com.whatsapp");
-            
-            PackageManager pm = getPackageManager();
-            if (intent.resolveActivity(pm) != null) {
-                startActivity(intent);
-                addLog("✅ Relatório enviado para WhatsApp (66984328877)");
-                Toast.makeText(this, "✅ Enviando relatório...", Toast.LENGTH_SHORT).show();
-            } else {
-                addLog("⚠️ WhatsApp não instalado");
-                Toast.makeText(this, "⚠️ Instale o WhatsApp para enviar o relatório", Toast.LENGTH_LONG).show();
-            }
-        } catch (Exception e) {
-            addLog("❌ Erro ao enviar: " + e.getMessage());
-            Toast.makeText(this, "Erro: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-    
     private void verificarEIniciarServico() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
             addLog("⚠️ Permissão de sobreposição NÃO concedida");
-            txtStatus.setText("⚠️ Status: Ative a permissão 'Sobrepor outros apps'");
-            txtStatus.setTextColor(0xFFFF9800);
-            Toast.makeText(this, "⚠️ Ative a permissão de sobreposição para o balão funcionar", Toast.LENGTH_LONG).show();
+            txtStatus.setText("⚠️ Ative a permissão de sobreposição");
         } else {
-            addLog("✅ Serviço iniciado com sucesso!");
-            txtStatus.setText("✅ Status: Serviço em execução");
-            txtStatus.setTextColor(0xFF4CAF50);
+            addLog("✅ Serviço de monitoramento iniciado");
+            txtStatus.setText("✅ Serviço ativo | Monitorando clipboard");
             iniciarServico();
         }
     }
@@ -266,7 +415,6 @@ public class MainActivity extends Activity {
         String timestamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
         logBuilder.insert(0, "[" + timestamp + "] " + log + "\n");
         
-        // Limita o tamanho do log para performance
         if (logBuilder.length() > 5000) {
             logBuilder.setLength(5000);
         }
