@@ -32,12 +32,13 @@ Com um **balão flutuante** que aparece automaticamente ao copiar um número, ba
 
 ### 📋 Como Usar
 
-1. **Baixe o APK** na seção [Releases][![Download APK](https://img.shields.io/badge/Download-Number2Talk_v2.0_Final.apk-brightgreen?style=for-the-badge&logo=android)](https://github.com/niopolimathtechnical-00110011/Number2TalkOnWA/releases/download/v2.0/Number2Talk_v2.0_Final.apk)
+1. **Baixe o APK** na seção [Releases](https://github.com/niopolimathtechnical-00110011/Number2TalkOnWA/releases)
+**[![Download APK](https://img.shields.io/badge/Download-Number2Talk_v2.0_Final.apk-brightgreen?style=for-the-badge&logo=android)](https://github.com/niopolimathtechnical-00110011/Number2TalkOnWA/releases/download/v2.0/Number2Talk_v2.0_Final.apk)**
 2. **Instale** no seu dispositivo Android (5.0+)
 3. **Abra o app** e conceda a permissão de "Sobrepor outros apps"
 4. **Copie qualquer número** de telefone (ex: `+55 66 9 8432 8877`)
-5. **Toque no balão flutuante** que aparecerá na tela
-6. **O WhatsApp abrirá** diretamente na conversa com o número
+5. **Toque no balão flutuante** que aparecerá na tela(esta função não está funcionando ainda, preciso melhorar)
+7. **O WhatsApp abrirá** diretamente na conversa com o número
 
 ### 🛠️ Debug e Suporte
 
